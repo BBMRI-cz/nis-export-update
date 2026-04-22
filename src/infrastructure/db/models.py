@@ -18,47 +18,27 @@ class PredictiveNumberStatusDB(enum.Enum):
 class PredictiveNumberStateORM(Base):
     __tablename__ = "predictive_number_state"
 
-    pseudo_pred_number: Mapped[str] = mapped_column(
-        String,
-        primary_key=True
-    )
+    pseudo_pred_number: Mapped[str] = mapped_column(String, primary_key=True)
 
-    real_pred_number: Mapped[str] = mapped_column(
-        String,
-        nullable=False
-    )
+    real_pred_number: Mapped[str] = mapped_column(String, nullable=False)
 
     status: Mapped[PredictiveNumberStatusDB] = mapped_column(
-        Enum(PredictiveNumberStatusDB, native_enum=False),
-        nullable=False,
-        index=True
+        Enum(PredictiveNumberStatusDB, native_enum=False), nullable=False, index=True
     )
 
-    hash: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True
-    )
+    hash: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    runs: Mapped[list[str]] = mapped_column(
-        JSON,
-        nullable=False,
-        default=list
-    )
+    runs: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
 
     last_seen_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     last_processed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
         onupdate=func.now(),
-        nullable=False
+        nullable=False,
     )
 
-    last_error: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True
-    )
+    last_error: Mapped[str | None] = mapped_column(String, nullable=True)

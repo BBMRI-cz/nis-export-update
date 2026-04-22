@@ -1,6 +1,5 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from datetime import datetime
 
 from domain.models import PredictiveNumberState, PredictiveNumberStatus
 from infrastructure.db.models import (
@@ -32,8 +31,8 @@ def to_orm(domain: PredictiveNumberState) -> PredictiveNumberStateORM:
         last_error=domain.last_error,
     )
 
-class PredictiveNumberRepository:
 
+class PredictiveNumberRepository:
     def __init__(self, session: Session):
         self.session = session
 
@@ -47,10 +46,7 @@ class PredictiveNumberRepository:
         return [to_domain(row) for row in result]
 
     def save(self, state: PredictiveNumberState) -> None:
-        existing = self.session.get(
-            PredictiveNumberStateORM,
-            state.pseudo_pred_number
-        )
+        existing = self.session.get(PredictiveNumberStateORM, state.pseudo_pred_number)
 
         if existing:
             self._update_existing(existing, state)
@@ -60,13 +56,11 @@ class PredictiveNumberRepository:
         self.session.commit()
 
     def _update_existing(
-            self,
-            existing: PredictiveNumberStateORM,
-            state: PredictiveNumberState
-        ) -> None:
-            existing.real_pred_number = state.real_pred_number
-            existing.status = PredictiveNumberStatusDB(state.status.value)
-            existing.hash = state.hash
-            existing.last_seen_at = state.last_seen_at
-            existing.last_processed_at = state.last_processed_at
-            existing.last_error = state.last_error
+        self, existing: PredictiveNumberStateORM, state: PredictiveNumberState
+    ) -> None:
+        existing.real_pred_number = state.real_pred_number
+        existing.status = PredictiveNumberStatusDB(state.status.value)
+        existing.hash = state.hash
+        existing.last_seen_at = state.last_seen_at
+        existing.last_processed_at = state.last_processed_at
+        existing.last_error = state.last_error

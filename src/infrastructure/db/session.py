@@ -10,6 +10,7 @@ def require_env(name: str) -> str:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
 
+
 # needs to be a function for migrations to work
 def get_database_url() -> str:
     return (
