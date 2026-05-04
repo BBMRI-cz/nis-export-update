@@ -1,16 +1,19 @@
-from infrastructure.db.models import Base
-from sqlalchemy import create_engine
-from infrastructure.db.session import get_database_url
-from sqlalchemy import pool
-
-from logging.config import fileConfig
-
-
-from alembic import context
+from pathlib import Path
 
 from dotenv import load_dotenv
 
+# Load `.env` before importing `infrastructure.db.session` (that module builds `engine` at import).
+_project_root = Path(__file__).resolve().parent.parent.parent
+load_dotenv(_project_root / ".env")
 load_dotenv()
+
+from logging.config import fileConfig
+
+from alembic import context
+from sqlalchemy import create_engine, pool
+
+from infrastructure.db.models import Base
+from infrastructure.db.session import get_database_url
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -27,7 +30,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
+# other values from the config file, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
