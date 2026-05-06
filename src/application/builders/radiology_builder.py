@@ -4,7 +4,22 @@ from domain.models import CtSeries, DxSeries, ImagingStudy, MgSeries, MrSeries, 
 
 
 class RadiologyBuilder:
+    def _first_dict(self, value: object) -> dict | None:
+        if isinstance(value, dict):
+            return value
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    return item
+        return None
+
     def build_imaging_study(self, payload: dict) -> ImagingStudy:
+        ct_payload = self._first_dict(payload.get("ct_series"))
+        mr_payload = self._first_dict(payload.get("mr_series"))
+        us_payload = self._first_dict(payload.get("us_series"))
+        dx_payload = self._first_dict(payload.get("dx_series"))
+        mg_payload = self._first_dict(payload.get("mg_series"))
+        wsi_payload = self._first_dict(payload.get("wsi_series"))
         return ImagingStudy(
             accession_number=str(payload["accession_number"]),
             source_id=str(payload.get("source_id", payload.get("id", payload["accession_number"]))),
@@ -18,12 +33,12 @@ class RadiologyBuilder:
             dicom_series_count=payload.get("dicom_series_count"),
             dicom_images_count=payload.get("dicom_images_count"),
             affiliated_institution=payload.get("affiliated_institution"),
-            ct_series=[self._build_ct_series(item) for item in payload.get("ct_series", [])],
-            mr_series=[self._build_mr_series(item) for item in payload.get("mr_series", [])],
-            us_series=[self._build_us_series(item) for item in payload.get("us_series", [])],
-            dx_series=[self._build_dx_series(item) for item in payload.get("dx_series", [])],
-            mg_series=[self._build_mg_series(item) for item in payload.get("mg_series", [])],
-            wsi_series=[self._build_wsi_series(item) for item in payload.get("wsi_series", [])],
+            ct_series=self._build_ct_series(ct_payload) if ct_payload else None,
+            mr_series=self._build_mr_series(mr_payload) if mr_payload else None,
+            us_series=self._build_us_series(us_payload) if us_payload else None,
+            dx_series=self._build_dx_series(dx_payload) if dx_payload else None,
+            mg_series=self._build_mg_series(mg_payload) if mg_payload else None,
+            wsi_series=self._build_wsi_series(wsi_payload) if wsi_payload else None,
         )
 
     def _build_ct_series(self, payload: dict) -> CtSeries:

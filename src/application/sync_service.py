@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import uuid
+from application.builders.clinical_builder import ClinicalBuilder
 from application.builders.radiology_builder import RadiologyBuilder
+from application.builders.sequencing_builder import SequencingBuilder
 from application.interfaces.ports import (
     CatalogueGateway,
     SourceDataGateway,
@@ -11,8 +13,8 @@ from application.interfaces.ports import (
 )
 from domain.models import (
     CatalogueOperation,
-    ImagingStudy,
     PatientAggregate,
+    RadiologyData,
     Sample,
     SequencingData,
     SyncState,
@@ -40,13 +42,17 @@ class CatalogueSyncService:
         catalogue_gateway: CatalogueGateway,
         state_repository: SyncStateRepository,
         planner: SyncPlanner,
+        clinical_builder: ClinicalBuilder | None = None,
         radiology_builder: RadiologyBuilder | None = None,
+        sequencing_builder: SequencingBuilder | None = None,
     ) -> None:
         self.source_gateway = source_gateway
         self.catalogue_gateway = catalogue_gateway
         self.state_repository = state_repository
         self.planner = planner
+        self.clinical_builder = clinical_builder or ClinicalBuilder()
         self.radiology_builder = radiology_builder or RadiologyBuilder()
+        self.sequencing_builder = sequencing_builder or SequencingBuilder()
 
     def run_catalogue_sync(self) -> RunSummary:
         run_id = str(uuid.uuid4())
@@ -121,6 +127,8 @@ class CatalogueSyncService:
         return summary
 
     def _build_patient_aggregate(self, raw_patient: dict) -> PatientAggregate:
+        personal = self.clinical_builder.build_personal(raw_patient)
+        clinical = self.clinical_builder.build_clinical(raw_patient)
         samples: list[Sample] = []
         for raw_sample in raw_patient.get("samples", []):
             predictive_number = raw_sample.get("predictive_number")
@@ -132,9 +140,8 @@ class CatalogueSyncService:
                     predictive_number
                 )
                 if sequencing_payload:
-                    sequencing = SequencingData(
+                    sequencing = self.sequencing_builder.build_sequencing_data(
                         predictive_number=predictive_number,
-                        source_id=str(sequencing_payload.get("id", predictive_number)),
                         payload=sequencing_payload,
                     )
 
@@ -153,6 +160,7 @@ class CatalogueSyncService:
                     sample_id=str(raw_sample["sample_id"]),
                     predictive_number=predictive_number,
                     bioptic_number=bioptic_number,
+                    material=self.clinical_builder.build_material(raw_sample),
                     payload=raw_sample,
                     sequencing=sequencing,
                     wsi=wsi,
@@ -163,7 +171,7 @@ class CatalogueSyncService:
             str(value) for value in raw_patient.get("accession_numbers", [])
         ]
         radiology_payloads = self.source_gateway.fetch_radiology(accession_numbers)
-        radiology: list[ImagingStudy] = []
+        radiology: RadiologyData = []
         for item in radiology_payloads:
             if not isinstance(item, dict):
                 continue
@@ -172,6 +180,8 @@ class CatalogueSyncService:
         return PatientAggregate(
             patient_id=str(raw_patient["patient_id"]),
             accession_numbers=accession_numbers,
+            personal=personal,
+            clinical=clinical,
             samples=samples,
             payload=raw_patient,
             radiology=radiology,

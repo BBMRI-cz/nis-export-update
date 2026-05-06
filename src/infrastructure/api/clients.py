@@ -5,6 +5,13 @@ from typing import Any, cast
 
 import requests
 
+from application.dto import (
+    build_clinical_catalogue_dto,
+    build_material_catalogue_dto,
+    build_personal_catalogue_dto,
+    build_radiology_catalogue_dto,
+    build_sequencing_catalogue_dto,
+)
 from domain.models import PatientAggregate
 
 
@@ -97,14 +104,19 @@ class HttpCatalogueGateway:
                         "sample_id": sample.sample_id,
                         "predictive_number": sample.predictive_number,
                         "bioptic_number": sample.bioptic_number,
-                        "sequencing": sample.sequencing.payload
+                        "material": build_material_catalogue_dto(sample),
+                        "sequencing": build_sequencing_catalogue_dto(sample.sequencing)
                         if sample.sequencing
                         else None,
                         "wsi": sample.wsi.payload if sample.wsi else None,
                     }
                     for sample in patient.samples
                 ],
-                "radiology": [entry.payload for entry in patient.radiology],
+                "radiology": [
+                    build_radiology_catalogue_dto(entry) for entry in patient.radiology
+                ],
+                "personal": build_personal_catalogue_dto(patient),
+                "clinical": build_clinical_catalogue_dto(patient),
                 "payload": patient.payload,
             },
         )

@@ -29,12 +29,12 @@ class ImagingStudyDto:
     dicom_series_count: int | None
     dicom_images_count: int | None
     affiliated_institution: str | None
-    ct_series: list["CtSeriesDto"] | None
-    mr_series: list["MrSeriesDto"] | None
-    us_series: list["UsSeriesDto"] | None
-    dx_series: list["DxSeriesDto"] | None
-    mg_series: list["MgSeriesDto"] | None
-    wsi_series: list["WsiSeriesDto"] | None
+    ct_series: "CtSeriesDto" | None
+    mr_series: "MrSeriesDto" | None
+    us_series: "UsSeriesDto" | None
+    dx_series: "DxSeriesDto" | None
+    mg_series: "MgSeriesDto" | None
+    wsi_series: "WsiSeriesDto" | None
 
 
 @dataclass(frozen=True)
@@ -177,12 +177,12 @@ def imaging_study_to_dto(study: ImagingStudy) -> ImagingStudyDto:
         dicom_series_count=study.dicom_series_count,
         dicom_images_count=study.dicom_images_count,
         affiliated_institution=study.affiliated_institution,
-        ct_series=[ct_series_to_dto(item) for item in (study.ct_series or [])],
-        mr_series=[mr_series_to_dto(item) for item in (study.mr_series or [])],
-        us_series=[us_series_to_dto(item) for item in (study.us_series or [])],
-        dx_series=[dx_series_to_dto(item) for item in (study.dx_series or [])],
-        mg_series=[mg_series_to_dto(item) for item in (study.mg_series or [])],
-        wsi_series=[wsi_series_to_dto(item) for item in (study.wsi_series or [])],
+        ct_series=ct_series_to_dto(study.ct_series) if study.ct_series else None,
+        mr_series=mr_series_to_dto(study.mr_series) if study.mr_series else None,
+        us_series=us_series_to_dto(study.us_series) if study.us_series else None,
+        dx_series=dx_series_to_dto(study.dx_series) if study.dx_series else None,
+        mg_series=mg_series_to_dto(study.mg_series) if study.mg_series else None,
+        wsi_series=wsi_series_to_dto(study.wsi_series) if study.wsi_series else None,
     )
 
 

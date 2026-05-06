@@ -22,10 +22,108 @@ class CatalogueOperation(Enum):
 
 
 @dataclass(frozen=True)
-class SequencingData:
+class AnalysisData:
+    analysis_identifier: str | None = None
+    belongs_to_sequencing: str | None = None
+    physical_location: str | None = None
+    abstract_location: str | None = None
+    data_formats: list[str] | None = None
+    algorithms: list[str] | None = None
+    reference_genome: str | None = None
+    bioinformatic_protocol: str | None = None
+    bioinformatic_protocol_deviation: str | None = None
+    reason_for_bioinformatic_protocol_deviation: str | None = None
+    wgs_guideline_followed: str | None = None
+
+
+@dataclass(frozen=True)
+class MaterialData:
+    material_identifier: str | None = None
+    collected_from_person: str | None = None
+    belongs_to_diagnosis: list[str] | None = None
+    sampling_timestamp: str | None = None
+    registration_timestamp: str | None = None
+    sampling_protocol: str | None = None
+    sampling_protocol_deviation: str | None = None
+    reason_for_sampling_protocol_deviation: str | None = None
+    biospecimen_type: str | None = None
+    anatomical_source: str | None = None
+    pathological_state: str | None = None
+    storage_conditions: str | None = None
+    expiration_date: str | None = None
+    percentage_tumor_cells: float | None = None
+    physical_location: str | None = None
+    analyses_performed: list[str] | None = None
+    derived_from: str | None = None
+
+
+@dataclass(frozen=True)
+class FixedBlockData:
+    block_identifier: str | None = None
+    source_material: str | None = None
+    name_of_fixative: str | None = None
+    embedding_medium: str | None = None
+    sample_preparations: list["SamplePreparationData"] | None = None
+
+
+@dataclass(frozen=True)
+class SamplePreparationData:
+    sampleprep_identifier: str | None = None
+    belongs_to_material: str | None = None
+    input_amount: str | None = None
+    library_preparation_kit: str | None = None
+    pcr_free: bool | None = None
+    target_enrichment_kit: str | None = None
+    full_sequence_genes: list[str] | None = None
+    partial_sequence_genes: list[str] | None = None
+    umi: bool | None = None
+    intended_insert_size: int | None = None
+    intended_read_length: int | None = None
+    sequencing_runs: list["SequencingRunData"] | None = None
+
+
+@dataclass(frozen=True)
+class SequencingRunData:
+    sequencing_identifier: str | None = None
+    belongs_to_sample_preparation: str | None = None
+    sequencing_date: str | None = None
+    sequencing_platform: str | None = None
+    instrument_model: str | None = None
+    sequencing_method: str | None = None
+    median_read_depth: int | None = None
+    observed_read_length: int | None = None
+    observed_insert_size: int | None = None
+    percent_q30: float | None = None
+    percent_tr20: float | None = None
+    sequencing_quality_metrics: str | None = None
+    analysis: AnalysisData | None = None
+
+
+@dataclass(frozen=True)
+class SequencingEntry:
     predictive_number: str
     source_id: str
-    payload: dict
+    fixed_block: FixedBlockData | None = None
+
+
+SequencingData = list[SequencingEntry]
+
+
+@dataclass(frozen=True)
+class PersonalData:
+    personal_identifier: str | None = None
+    year_of_birth: int | None = None
+    sex_at_birth: str | None = None
+    gender_identity: str | None = None
+
+
+@dataclass(frozen=True)
+class ClinicalData:
+    clinical_identifier: str | None = None
+    belongs_to_person: str | None = None
+    clinical_diagnosis: list[str] | None = None
+    age_at_diagnosis: int | None = None
+    age_of_onset: int | None = None
 
 
 @dataclass(frozen=True)
@@ -147,16 +245,15 @@ class ImagingStudy:
     dicom_series_count: int | None = None
     dicom_images_count: int | None = None
     affiliated_institution: str | None = None
-    ct_series: list[CtSeries] | None = None
-    mr_series: list[MrSeries] | None = None
-    us_series: list[UsSeries] | None = None
-    dx_series: list[DxSeries] | None = None
-    mg_series: list[MgSeries] | None = None
-    wsi_series: list[WsiSeries] | None = None
+    ct_series: CtSeries | None = None
+    mr_series: MrSeries | None = None
+    us_series: UsSeries | None = None
+    dx_series: DxSeries | None = None
+    mg_series: MgSeries | None = None
+    wsi_series: WsiSeries | None = None
 
 
-# Backwards-compatible alias while consumers migrate naming.
-RadiologyData = ImagingStudy
+RadiologyData = list[ImagingStudy]
 
 
 @dataclass(frozen=True)
@@ -164,6 +261,7 @@ class Sample:
     sample_id: str
     predictive_number: str | None
     bioptic_number: str | None
+    material: MaterialData | None = None
     payload: dict
     sequencing: SequencingData | None = None
     wsi: WsiData | None = None
@@ -173,9 +271,11 @@ class Sample:
 class PatientAggregate:
     patient_id: str
     accession_numbers: list[str]
+    personal: PersonalData | None
+    clinical: ClinicalData | None
     samples: list[Sample]
     payload: dict
-    radiology: list[ImagingStudy]
+    radiology: RadiologyData
 
     def is_upload_eligible(self) -> bool:
         return len(self.samples) > 0
