@@ -1,5 +1,11 @@
 from domain.models import (
     CatalogueOperation,
+    CtSeries,
+    DxSeries,
+    ImagingSeriesBase,
+    ImagingStudy,
+    MgSeries,
+    MrSeries,
     PatientAggregate,
     PlannedOperation,
     RadiologyData,
@@ -7,11 +13,19 @@ from domain.models import (
     SequencingData,
     SyncState,
     SyncStatus,
+    UsSeries,
     WsiData,
+    WsiSeries,
 )
 
 __all__ = [
     "CatalogueOperation",
+    "CtSeries",
+    "DxSeries",
+    "ImagingSeriesBase",
+    "ImagingStudy",
+    "MgSeries",
+    "MrSeries",
     "PatientAggregate",
     "PlannedOperation",
     "RadiologyData",
@@ -19,5 +33,7 @@ __all__ = [
     "SequencingData",
     "SyncState",
     "SyncStatus",
+    "UsSeries",
     "WsiData",
+    "WsiSeries",
 ]

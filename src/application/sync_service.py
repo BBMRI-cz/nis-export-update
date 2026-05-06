@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import uuid
-
+from application.builders.radiology_builder import RadiologyBuilder
 from application.interfaces.ports import (
     CatalogueGateway,
     SourceDataGateway,
@@ -11,8 +11,8 @@ from application.interfaces.ports import (
 )
 from domain.models import (
     CatalogueOperation,
+    ImagingStudy,
     PatientAggregate,
-    RadiologyData,
     Sample,
     SequencingData,
     SyncState,
@@ -40,11 +40,13 @@ class CatalogueSyncService:
         catalogue_gateway: CatalogueGateway,
         state_repository: SyncStateRepository,
         planner: SyncPlanner,
+        radiology_builder: RadiologyBuilder | None = None,
     ) -> None:
         self.source_gateway = source_gateway
         self.catalogue_gateway = catalogue_gateway
         self.state_repository = state_repository
         self.planner = planner
+        self.radiology_builder = radiology_builder or RadiologyBuilder()
 
     def run_catalogue_sync(self) -> RunSummary:
         run_id = str(uuid.uuid4())
@@ -161,14 +163,11 @@ class CatalogueSyncService:
             str(value) for value in raw_patient.get("accession_numbers", [])
         ]
         radiology_payloads = self.source_gateway.fetch_radiology(accession_numbers)
-        radiology = [
-            RadiologyData(
-                accession_number=str(item["accession_number"]),
-                source_id=str(item.get("id", item["accession_number"])),
-                payload=item,
-            )
-            for item in radiology_payloads
-        ]
+        radiology: list[ImagingStudy] = []
+        for item in radiology_payloads:
+            if not isinstance(item, dict):
+                continue
+            radiology.append(self.radiology_builder.build_imaging_study(item))
 
         return PatientAggregate(
             patient_id=str(raw_patient["patient_id"]),
