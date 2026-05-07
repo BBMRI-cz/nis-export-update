@@ -22,7 +22,7 @@ class CatalogueOperation(Enum):
 
 
 @dataclass(frozen=True)
-class AnalysisData:
+class Analysis:
     analysis_identifier: str | None = None
     belongs_to_sequencing: str | None = None
     physical_location: str | None = None
@@ -37,7 +37,7 @@ class AnalysisData:
 
 
 @dataclass(frozen=True)
-class MaterialData:
+class Material:
     material_identifier: str | None = None
     collected_from_person: str | None = None
     belongs_to_diagnosis: list[str] | None = None
@@ -58,16 +58,16 @@ class MaterialData:
 
 
 @dataclass(frozen=True)
-class FixedBlockData:
+class FixedBlock:
     block_identifier: str | None = None
     source_material: str | None = None
     name_of_fixative: str | None = None
     embedding_medium: str | None = None
-    sample_preparations: list["SamplePreparationData"] | None = None
+    sample_preparation: "SamplePreparation" | None = None
 
 
 @dataclass(frozen=True)
-class SamplePreparationData:
+class SamplePreparation:
     sampleprep_identifier: str | None = None
     belongs_to_material: str | None = None
     input_amount: str | None = None
@@ -79,11 +79,11 @@ class SamplePreparationData:
     umi: bool | None = None
     intended_insert_size: int | None = None
     intended_read_length: int | None = None
-    sequencing_runs: list["SequencingRunData"] | None = None
+    sequencing_run: "SequencingRun" | None = None
 
 
 @dataclass(frozen=True)
-class SequencingRunData:
+class SequencingRun:
     sequencing_identifier: str | None = None
     belongs_to_sample_preparation: str | None = None
     sequencing_date: str | None = None
@@ -96,21 +96,23 @@ class SequencingRunData:
     percent_q30: float | None = None
     percent_tr20: float | None = None
     sequencing_quality_metrics: str | None = None
-    analysis: AnalysisData | None = None
+    analysis: Analysis | None = None
 
 
 @dataclass(frozen=True)
 class SequencingEntry:
     predictive_number: str
     source_id: str
-    fixed_block: FixedBlockData | None = None
+    fixed_block_identifier: str | None = None
+    sample_preparation: SamplePreparation | None = None
+    sequencing_run: SequencingRun | None = None
 
 
 SequencingData = list[SequencingEntry]
 
 
 @dataclass(frozen=True)
-class PersonalData:
+class Personal:
     personal_identifier: str | None = None
     year_of_birth: int | None = None
     sex_at_birth: str | None = None
@@ -118,7 +120,7 @@ class PersonalData:
 
 
 @dataclass(frozen=True)
-class ClinicalData:
+class Clinical:
     clinical_identifier: str | None = None
     belongs_to_person: str | None = None
     clinical_diagnosis: list[str] | None = None
@@ -127,10 +129,66 @@ class ClinicalData:
 
 
 @dataclass(frozen=True)
+class SlideContainer:
+    slide_container_identifier: str | None = None
+    source_fixed_block: str | None = None
+    container_type: str | None = None
+    section_thickness: int | None = None
+    cell_type: list[str] | None = None
+    tissue_type: list[str] | None = None
+
+
+@dataclass(frozen=True)
+class SlidePreparationAssay:
+    assay_identifier: str | None = None
+    slide_container_identifier: str | None = None
+    staining_method: str | None = None
+    assay_type: str | None = None
+
+
+@dataclass(frozen=True)
+class WholeSlideImaging:
+    wsi_identifier: str | None = None
+    belongs_to_imaging_study: str | None = None
+    dicom_images_count: int | None = None
+    series_start_date: str | None = None
+    body_region: str | None = None
+    imaging_device: str | None = None
+    manufacturer_of_imaging_device: str | None = None
+    software_version: str | None = None
+    z_stacking: str | None = None
+    objective_lens_magnification: int | None = None
+    illumination_method: str | None = None
+    illumination_wavelength: int | None = None
+    scanning_operation_mode: str | None = None
+    tissue_scan_area: int | None = None
+    number_of_focal_planes: int | None = None
+    distance_between_focal_planes: int | None = None
+    pyramid_levels: int | None = None
+    colour_icc_profile: str | None = None
+    preview_available: bool | None = None
+    label_available: bool | None = None
+    source_assay: str | None = None
+    file_format: str | None = None
+    file_size: int | None = None
+    image_width: int | None = None
+    image_height: int | None = None
+    image_depth: int | None = None
+    number_of_channels: int | None = None
+    channel_resolution: int | None = None
+    compression_method: str | None = None
+    compression_quality_label: str | None = None
+    annotations_available: bool | None = None
+
+
+@dataclass(frozen=True)
 class WsiData:
     bioptic_number: str
     source_id: str
-    payload: dict
+    fixed_block: FixedBlock | None = None
+    slide_container: SlideContainer | None = None
+    slide_preparation_assay: SlidePreparationAssay | None = None
+    whole_slide_imaging: WholeSlideImaging | None = None
 
 
 @dataclass(frozen=True)
@@ -215,23 +273,6 @@ class UsSeries(ImagingSeriesBase):
 
 
 @dataclass(frozen=True)
-class WsiSeries(ImagingSeriesBase):
-    z_stacking: str | None = None
-    objective_lens_magnification: int | None = None
-    illumination_method: str | None = None
-    illumination_wavelength: int | None = None
-    scanning_operation_mode: str | None = None
-    tissue_scan_area: int | None = None
-    number_of_focal_planes: int | None = None
-    distance_between_focal_planes: int | None = None
-    pyramid_levels: int | None = None
-    colour_icc_profile: str | None = None
-    preview_available: bool | None = None
-    label_available: bool | None = None
-    source_assay: str | None = None
-
-
-@dataclass(frozen=True)
 class ImagingStudy:
     accession_number: str
     source_id: str
@@ -250,7 +291,6 @@ class ImagingStudy:
     us_series: UsSeries | None = None
     dx_series: DxSeries | None = None
     mg_series: MgSeries | None = None
-    wsi_series: WsiSeries | None = None
 
 
 RadiologyData = list[ImagingStudy]
@@ -261,7 +301,7 @@ class Sample:
     sample_id: str
     predictive_number: str | None
     bioptic_number: str | None
-    material: MaterialData | None = None
+    material: Material | None = None
     payload: dict
     sequencing: SequencingData | None = None
     wsi: WsiData | None = None
@@ -271,8 +311,8 @@ class Sample:
 class PatientAggregate:
     patient_id: str
     accession_numbers: list[str]
-    personal: PersonalData | None
-    clinical: ClinicalData | None
+    personal: Personal | None
+    clinical: Clinical | None
     samples: list[Sample]
     payload: dict
     radiology: RadiologyData

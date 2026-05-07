@@ -4,22 +4,12 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from domain.models import (
-    AnalysisData,
-    FixedBlockData,
-    SamplePreparationData,
+    Analysis,
+    SamplePreparation,
     SequencingEntry,
     SequencingData,
-    SequencingRunData,
+    SequencingRun,
 )
-
-
-@dataclass(frozen=True)
-class FixedBlockDto:
-    block_identifier: str | None = None
-    source_material: str | None = None
-    name_of_fixative: str | None = None
-    embedding_medium: str | None = None
-    sample_preparations: list["SamplePreparationDto"] | None = None
 
 
 @dataclass(frozen=True)
@@ -35,7 +25,13 @@ class SamplePreparationDto:
     umi: bool | None = None
     intended_insert_size: int | None = None
     intended_read_length: int | None = None
-    sequencing_runs: list["SequencingRunDto"] | None = None
+    sequencing_run: "SequencingRunDto" | None = None
+
+
+@dataclass(frozen=True)
+class FixedBlockDto:
+    block_identifier: str | None = None
+    sample_preparation: SamplePreparationDto | None = None
 
 
 @dataclass(frozen=True)
@@ -77,22 +73,8 @@ class SequencingEntryDto:
     fixed_block: FixedBlockDto | None = None
 
 
-def _fixed_block_to_dto(block: FixedBlockData | None) -> FixedBlockDto | None:
-    if block is None:
-        return None
-    return FixedBlockDto(
-        block_identifier=block.block_identifier,
-        source_material=block.source_material,
-        name_of_fixative=block.name_of_fixative,
-        embedding_medium=block.embedding_medium,
-        sample_preparations=[
-            _sample_preparation_to_dto(item) for item in (block.sample_preparations or [])
-        ],
-    )
-
-
 def _sample_preparation_to_dto(
-    sample_preparation: SamplePreparationData | None,
+    sample_preparation: SamplePreparation | None,
 ) -> SamplePreparationDto | None:
     if sample_preparation is None:
         return None
@@ -108,14 +90,14 @@ def _sample_preparation_to_dto(
         umi=sample_preparation.umi,
         intended_insert_size=sample_preparation.intended_insert_size,
         intended_read_length=sample_preparation.intended_read_length,
-        sequencing_runs=[
-            _sequencing_run_to_dto(item) for item in (sample_preparation.sequencing_runs or [])
-        ],
+        sequencing_run=_sequencing_run_to_dto(sample_preparation.sequencing_run)
+        if sample_preparation.sequencing_run
+        else None,
     )
 
 
 def _sequencing_run_to_dto(
-    sequencing_run: SequencingRunData | None,
+    sequencing_run: SequencingRun | None,
 ) -> SequencingRunDto | None:
     if sequencing_run is None:
         return None
@@ -138,15 +120,24 @@ def _sequencing_run_to_dto(
     )
 
 
-def _analysis_to_dto(analysis: AnalysisData) -> AnalysisDto:
+def _analysis_to_dto(analysis: Analysis) -> AnalysisDto:
     return AnalysisDto(**asdict(analysis))
+
+
+def _fixed_block_to_dto(sequencing: SequencingEntry) -> FixedBlockDto | None:
+    if not sequencing.fixed_block_identifier and sequencing.sample_preparation is None:
+        return None
+    return FixedBlockDto(
+        block_identifier=sequencing.fixed_block_identifier,
+        sample_preparation=_sample_preparation_to_dto(sequencing.sample_preparation),
+    )
 
 
 def sequencing_entry_to_dto(sequencing: SequencingEntry) -> SequencingEntryDto:
     return SequencingEntryDto(
         predictive_number=sequencing.predictive_number,
         source_id=sequencing.source_id,
-        fixed_block=_fixed_block_to_dto(sequencing.fixed_block),
+        fixed_block=_fixed_block_to_dto(sequencing),
     )
 
 

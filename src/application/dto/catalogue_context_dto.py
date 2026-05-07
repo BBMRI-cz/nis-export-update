@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
-from domain.models import ClinicalData, MaterialData, PatientAggregate, PersonalData, Sample
+from domain.models import Clinical, Material, PatientAggregate, Personal, Sample
 
 
 @dataclass(frozen=True)
@@ -44,19 +44,19 @@ class MaterialDto:
     derived_from: str | None = None
 
 
-def _personal_to_dto(personal: PersonalData | None) -> PersonalDto | None:
+def _personal_to_dto(personal: Personal | None) -> PersonalDto | None:
     if personal is None:
         return None
     return PersonalDto(**asdict(personal))
 
 
-def _clinical_to_dto(clinical: ClinicalData | None) -> ClinicalDto | None:
+def _clinical_to_dto(clinical: Clinical | None) -> ClinicalDto | None:
     if clinical is None:
         return None
     return ClinicalDto(**asdict(clinical))
 
 
-def material_to_dto(material: MaterialData | None) -> MaterialDto | None:
+def material_to_dto(material: Material | None) -> MaterialDto | None:
     if material is None:
         return None
     return MaterialDto(**asdict(material))

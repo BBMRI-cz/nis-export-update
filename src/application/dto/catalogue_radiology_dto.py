@@ -11,7 +11,6 @@ from domain.models import (
     MgSeries,
     MrSeries,
     UsSeries,
-    WsiSeries,
 )
 
 
@@ -34,7 +33,6 @@ class ImagingStudyDto:
     us_series: "UsSeriesDto" | None
     dx_series: "DxSeriesDto" | None
     mg_series: "MgSeriesDto" | None
-    wsi_series: "WsiSeriesDto" | None
 
 
 @dataclass(frozen=True)
@@ -118,23 +116,6 @@ class MgSeriesDto(ImagingSeriesBaseDto):
     compression_force_n: float | None = None
 
 
-@dataclass(frozen=True)
-class WsiSeriesDto(ImagingSeriesBaseDto):
-    z_stacking: str | None = None
-    objective_lens_magnification: int | None = None
-    illumination_method: str | None = None
-    illumination_wavelength: int | None = None
-    scanning_operation_mode: str | None = None
-    tissue_scan_area: int | None = None
-    number_of_focal_planes: int | None = None
-    distance_between_focal_planes: int | None = None
-    pyramid_levels: int | None = None
-    colour_icc_profile: str | None = None
-    preview_available: bool | None = None
-    label_available: bool | None = None
-    source_assay: str | None = None
-
-
 def _base_series_kwargs(series: ImagingSeriesBase) -> dict[str, Any]:
     return {
         "source_id": series.source_id,
@@ -182,7 +163,6 @@ def imaging_study_to_dto(study: ImagingStudy) -> ImagingStudyDto:
         us_series=us_series_to_dto(study.us_series) if study.us_series else None,
         dx_series=dx_series_to_dto(study.dx_series) if study.dx_series else None,
         mg_series=mg_series_to_dto(study.mg_series) if study.mg_series else None,
-        wsi_series=wsi_series_to_dto(study.wsi_series) if study.wsi_series else None,
     )
 
 
@@ -247,25 +227,6 @@ def mg_series_to_dto(series: MgSeries) -> MgSeriesDto:
         exposure_time_ms=series.exposure_time_ms,
         exposure_mas=series.exposure_mas,
         compression_force_n=series.compression_force_n,
-    )
-
-
-def wsi_series_to_dto(series: WsiSeries) -> WsiSeriesDto:
-    return WsiSeriesDto(
-        **_base_series_kwargs(series),
-        z_stacking=series.z_stacking,
-        objective_lens_magnification=series.objective_lens_magnification,
-        illumination_method=series.illumination_method,
-        illumination_wavelength=series.illumination_wavelength,
-        scanning_operation_mode=series.scanning_operation_mode,
-        tissue_scan_area=series.tissue_scan_area,
-        number_of_focal_planes=series.number_of_focal_planes,
-        distance_between_focal_planes=series.distance_between_focal_planes,
-        pyramid_levels=series.pyramid_levels,
-        colour_icc_profile=series.colour_icc_profile,
-        preview_available=series.preview_available,
-        label_available=series.label_available,
-        source_assay=series.source_assay,
     )
 
 

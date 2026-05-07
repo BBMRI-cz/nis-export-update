@@ -11,6 +11,7 @@ from application.dto import (
     build_personal_catalogue_dto,
     build_radiology_catalogue_dto,
     build_sequencing_catalogue_dto,
+    build_wsi_catalogue_dto,
 )
 from domain.models import PatientAggregate
 
@@ -108,7 +109,7 @@ class HttpCatalogueGateway:
                         "sequencing": build_sequencing_catalogue_dto(sample.sequencing)
                         if sample.sequencing
                         else None,
-                        "wsi": sample.wsi.payload if sample.wsi else None,
+                        "wsi": build_wsi_catalogue_dto(sample.wsi) if sample.wsi else None,
                     }
                     for sample in patient.samples
                 ],

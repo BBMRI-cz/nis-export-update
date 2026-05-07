@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from domain.models import ClinicalData, MaterialData, PersonalData
+from domain.models import Clinical, Material, Personal
 
 
 class ClinicalBuilder:
-    def build_personal(self, payload: dict) -> PersonalData:
-        return PersonalData(
+    def build_personal(self, payload: dict) -> Personal:
+        return Personal(
             personal_identifier=payload.get("personal_identifier"),
             year_of_birth=payload.get("year_of_birth"),
             sex_at_birth=payload.get("sex_at_birth"),
             gender_identity=payload.get("gender_identity"),
         )
 
-    def build_clinical(self, payload: dict) -> ClinicalData:
-        return ClinicalData(
+    def build_clinical(self, payload: dict) -> Clinical:
+        return Clinical(
             clinical_identifier=payload.get("clinical_identifier"),
             belongs_to_person=payload.get("belongs_to_person"),
             clinical_diagnosis=payload.get("clinical_diagnosis"),
@@ -21,8 +21,8 @@ class ClinicalBuilder:
             age_of_onset=payload.get("age_of_onset"),
         )
 
-    def build_material(self, payload: dict) -> MaterialData:
-        return MaterialData(
+    def build_material(self, payload: dict) -> Material:
+        return Material(
             material_identifier=payload.get("material_identifier"),
             collected_from_person=payload.get("collected_from_person"),
             belongs_to_diagnosis=payload.get("belongs_to_diagnosis"),

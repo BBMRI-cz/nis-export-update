@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from domain.models import CtSeries, DxSeries, ImagingStudy, MgSeries, MrSeries, UsSeries, WsiSeries
+from domain.models import CtSeries, DxSeries, ImagingStudy, MgSeries, MrSeries, UsSeries
 
 
 class RadiologyBuilder:
@@ -19,7 +19,6 @@ class RadiologyBuilder:
         us_payload = self._first_dict(payload.get("us_series"))
         dx_payload = self._first_dict(payload.get("dx_series"))
         mg_payload = self._first_dict(payload.get("mg_series"))
-        wsi_payload = self._first_dict(payload.get("wsi_series"))
         return ImagingStudy(
             accession_number=str(payload["accession_number"]),
             source_id=str(payload.get("source_id", payload.get("id", payload["accession_number"]))),
@@ -38,7 +37,6 @@ class RadiologyBuilder:
             us_series=self._build_us_series(us_payload) if us_payload else None,
             dx_series=self._build_dx_series(dx_payload) if dx_payload else None,
             mg_series=self._build_mg_series(mg_payload) if mg_payload else None,
-            wsi_series=self._build_wsi_series(wsi_payload) if wsi_payload else None,
         )
 
     def _build_ct_series(self, payload: dict) -> CtSeries:
@@ -210,42 +208,3 @@ class RadiologyBuilder:
             compression_force_n=payload.get("compression_force_n"),
         )
 
-    def _build_wsi_series(self, payload: dict) -> WsiSeries:
-        return WsiSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
-            series_identifier=payload.get("series_identifier"),
-            imaging_study_identifier=payload.get("imaging_study_identifier"),
-            dicom_images_count=payload.get("dicom_images_count"),
-            series_start_date=payload.get("series_start_date"),
-            body_region=payload.get("body_region"),
-            laterality=payload.get("laterality"),
-            imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
-            software_version=payload.get("software_version"),
-            color_space=payload.get("color_space"),
-            pixel_spacing=payload.get("pixel_spacing"),
-            image_type=payload.get("image_type"),
-            file_format=payload.get("file_format"),
-            file_size=payload.get("file_size"),
-            image_width=payload.get("image_width"),
-            image_height=payload.get("image_height"),
-            image_depth=payload.get("image_depth"),
-            number_of_channels=payload.get("number_of_channels"),
-            channel_resolution=payload.get("channel_resolution"),
-            compression_method=payload.get("compression_method"),
-            compression_quality_label=payload.get("compression_quality_label"),
-            annotations_available=payload.get("annotations_available"),
-            z_stacking=payload.get("z_stacking"),
-            objective_lens_magnification=payload.get("objective_lens_magnification"),
-            illumination_method=payload.get("illumination_method"),
-            illumination_wavelength=payload.get("illumination_wavelength"),
-            scanning_operation_mode=payload.get("scanning_operation_mode"),
-            tissue_scan_area=payload.get("tissue_scan_area"),
-            number_of_focal_planes=payload.get("number_of_focal_planes"),
-            distance_between_focal_planes=payload.get("distance_between_focal_planes"),
-            pyramid_levels=payload.get("pyramid_levels"),
-            colour_icc_profile=payload.get("colour_icc_profile"),
-            preview_available=payload.get("preview_available"),
-            label_available=payload.get("label_available"),
-            source_assay=payload.get("source_assay"),
-        )

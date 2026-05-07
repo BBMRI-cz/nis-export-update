@@ -5,6 +5,7 @@ import uuid
 from application.builders.clinical_builder import ClinicalBuilder
 from application.builders.radiology_builder import RadiologyBuilder
 from application.builders.sequencing_builder import SequencingBuilder
+from application.builders.wsi_builder import WsiBuilder
 from application.interfaces.ports import (
     CatalogueGateway,
     SourceDataGateway,
@@ -19,7 +20,6 @@ from domain.models import (
     SequencingData,
     SyncState,
     SyncStatus,
-    WsiData,
     now_utc,
 )
 
@@ -45,6 +45,7 @@ class CatalogueSyncService:
         clinical_builder: ClinicalBuilder | None = None,
         radiology_builder: RadiologyBuilder | None = None,
         sequencing_builder: SequencingBuilder | None = None,
+        wsi_builder: WsiBuilder | None = None,
     ) -> None:
         self.source_gateway = source_gateway
         self.catalogue_gateway = catalogue_gateway
@@ -53,6 +54,7 @@ class CatalogueSyncService:
         self.clinical_builder = clinical_builder or ClinicalBuilder()
         self.radiology_builder = radiology_builder or RadiologyBuilder()
         self.sequencing_builder = sequencing_builder or SequencingBuilder()
+        self.wsi_builder = wsi_builder or WsiBuilder()
 
     def run_catalogue_sync(self) -> RunSummary:
         run_id = str(uuid.uuid4())
@@ -149,9 +151,8 @@ class CatalogueSyncService:
             if bioptic_number:
                 wsi_payload = self.source_gateway.fetch_wsi(bioptic_number)
                 if wsi_payload:
-                    wsi = WsiData(
+                    wsi = self.wsi_builder.build_wsi(
                         bioptic_number=bioptic_number,
-                        source_id=str(wsi_payload.get("id", bioptic_number)),
                         payload=wsi_payload,
                     )
 
