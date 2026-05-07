@@ -64,6 +64,7 @@ class FixedBlock:
     name_of_fixative: str | None = None
     embedding_medium: str | None = None
     sample_preparation: "SamplePreparation" | None = None
+    slide_container: "SlideContainer" | None = None
 
 
 @dataclass(frozen=True)
@@ -105,7 +106,6 @@ class SequencingEntry:
     source_id: str
     fixed_block_identifier: str | None = None
     sample_preparation: SamplePreparation | None = None
-    sequencing_run: SequencingRun | None = None
 
 
 SequencingData = list[SequencingEntry]
@@ -136,6 +136,7 @@ class SlideContainer:
     section_thickness: int | None = None
     cell_type: list[str] | None = None
     tissue_type: list[str] | None = None
+    slide_preparation_assay: "SlidePreparationAssay" | None = None
 
 
 @dataclass(frozen=True)
@@ -144,6 +145,7 @@ class SlidePreparationAssay:
     slide_container_identifier: str | None = None
     staining_method: str | None = None
     assay_type: str | None = None
+    whole_slide_imaging: "WholeSlideImaging" | None = None
 
 
 @dataclass(frozen=True)
@@ -186,9 +188,6 @@ class WsiData:
     bioptic_number: str
     source_id: str
     fixed_block: FixedBlock | None = None
-    slide_container: SlideContainer | None = None
-    slide_preparation_assay: SlidePreparationAssay | None = None
-    whole_slide_imaging: WholeSlideImaging | None = None
 
 
 @dataclass(frozen=True)

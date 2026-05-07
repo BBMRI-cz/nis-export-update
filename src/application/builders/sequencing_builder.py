@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-
 from domain.models import (
     Analysis,
     SamplePreparation,
@@ -9,31 +7,21 @@ from domain.models import (
     SequencingData,
     SequencingRun,
 )
+from domain.utils import as_list, has_any_keys, resolve_source_id
 
 
 class SequencingBuilder:
-    def _as_list(self, value: Any) -> list[Any]:
-        if value is None:
-            return []
-        if isinstance(value, list):
-            return value
-        return [value]
-
     def build_sequencing_data(
         self, predictive_number: str, payload: dict
     ) -> SequencingData:
-        entries_payload = self._as_list(payload.get("sequencing_entries"))
+        entries_payload = as_list(payload.get("sequencing_entries"))
         if not entries_payload:
             entries_payload = [payload]
         entries: SequencingData = []
         for entry_payload in entries_payload:
             if not isinstance(entry_payload, dict):
                 continue
-            source_id = str(
-                entry_payload.get(
-                    "source_id", entry_payload.get("id", predictive_number)
-                )
-            )
+            source_id = resolve_source_id(entry_payload, predictive_number)
             entries.append(
                 SequencingEntry(
                     predictive_number=predictive_number,
@@ -44,24 +32,30 @@ class SequencingBuilder:
                     sample_preparation=self._build_sample_preparation(
                         entry_payload.get("sample_preparation", entry_payload)
                     ),
-                    sequencing_run=self._build_sequencing_run(
-                        entry_payload.get(
-                            "sequencing_run", entry_payload.get("sequencing")
-                        )
-                    ),
                 )
             )
         return entries
 
-    def _build_fixed_block_identifier(self, payload: dict | Any) -> str | None:
+    def _build_fixed_block_identifier(self, payload: object) -> str | None:
         if not isinstance(payload, dict) or not payload:
             return None
         return payload.get("block_identifier")
 
-    def _build_sample_preparation(
-        self, payload: dict | Any
-    ) -> SamplePreparation | None:
+    def _build_sample_preparation(self, payload: object) -> SamplePreparation | None:
         if not isinstance(payload, dict) or not payload:
+            return None
+        if not has_any_keys(
+            payload,
+            [
+                "sampleprep_identifier",
+                "belongs_to_material",
+                "input_amount",
+                "library_preparation_kit",
+                "target_enrichment_kit",
+                "sequencing_run",
+                "sequencing",
+            ],
+        ):
             return None
         sequencing_run = None
         direct_run = payload.get("sequencing_run", payload.get("sequencing"))
@@ -82,12 +76,25 @@ class SequencingBuilder:
             sequencing_run=sequencing_run,
         )
 
-    def _build_sequencing_run(self, payload: dict | Any) -> SequencingRun | None:
+    def _build_sequencing_run(self, payload: object) -> SequencingRun | None:
         if not isinstance(payload, dict) or not payload:
+            return None
+        if not has_any_keys(
+            payload,
+            [
+                "sequencing_identifier",
+                "belongs_to_sample_preparation",
+                "sequencing_date",
+                "sequencing_platform",
+                "instrument_model",
+                "sequencing_method",
+                "analysis",
+            ],
+        ):
             return None
         analysis = [
             self._build_analysis(item)
-            for item in self._as_list(payload.get("analysis"))
+            for item in as_list(payload.get("analysis"))
             if isinstance(item, dict)
         ]
         return SequencingRun(

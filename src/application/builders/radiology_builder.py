@@ -1,29 +1,19 @@
 from __future__ import annotations
 
 from domain.models import CtSeries, DxSeries, ImagingStudy, MgSeries, MrSeries, UsSeries
+from domain.utils import first_dict, resolve_source_id
 
 
 class RadiologyBuilder:
-    def _first_dict(self, value: object) -> dict | None:
-        if isinstance(value, dict):
-            return value
-        if isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    return item
-        return None
-
     def build_imaging_study(self, payload: dict) -> ImagingStudy:
-        ct_payload = self._first_dict(payload.get("ct_series"))
-        mr_payload = self._first_dict(payload.get("mr_series"))
-        us_payload = self._first_dict(payload.get("us_series"))
-        dx_payload = self._first_dict(payload.get("dx_series"))
-        mg_payload = self._first_dict(payload.get("mg_series"))
+        ct_payload = first_dict(payload.get("ct_series"))
+        mr_payload = first_dict(payload.get("mr_series"))
+        us_payload = first_dict(payload.get("us_series"))
+        dx_payload = first_dict(payload.get("dx_series"))
+        mg_payload = first_dict(payload.get("mg_series"))
         return ImagingStudy(
             accession_number=str(payload["accession_number"]),
-            source_id=str(
-                payload.get("source_id", payload.get("id", payload["accession_number"]))
-            ),
+            source_id=resolve_source_id(payload, str(payload["accession_number"])),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             belongs_to_person=payload.get("belongs_to_person"),
             imaging_modalities=payload.get("imaging_modalities"),
@@ -43,7 +33,7 @@ class RadiologyBuilder:
 
     def _build_ct_series(self, payload: dict) -> CtSeries:
         return CtSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
+            source_id=resolve_source_id(payload),
             series_identifier=payload.get("series_identifier"),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             dicom_images_count=payload.get("dicom_images_count"),
@@ -82,7 +72,7 @@ class RadiologyBuilder:
 
     def _build_mr_series(self, payload: dict) -> MrSeries:
         return MrSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
+            source_id=resolve_source_id(payload),
             series_identifier=payload.get("series_identifier"),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             dicom_images_count=payload.get("dicom_images_count"),
@@ -124,7 +114,7 @@ class RadiologyBuilder:
 
     def _build_us_series(self, payload: dict) -> UsSeries:
         return UsSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
+            source_id=resolve_source_id(payload),
             series_identifier=payload.get("series_identifier"),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             dicom_images_count=payload.get("dicom_images_count"),
@@ -156,7 +146,7 @@ class RadiologyBuilder:
 
     def _build_dx_series(self, payload: dict) -> DxSeries:
         return DxSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
+            source_id=resolve_source_id(payload),
             series_identifier=payload.get("series_identifier"),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             dicom_images_count=payload.get("dicom_images_count"),
@@ -189,7 +179,7 @@ class RadiologyBuilder:
 
     def _build_mg_series(self, payload: dict) -> MgSeries:
         return MgSeries(
-            source_id=str(payload.get("source_id", payload.get("id", "unknown"))),
+            source_id=resolve_source_id(payload),
             series_identifier=payload.get("series_identifier"),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             dicom_images_count=payload.get("dicom_images_count"),
