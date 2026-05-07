@@ -301,8 +301,8 @@ class Sample:
     sample_id: str
     predictive_number: str | None
     bioptic_number: str | None
-    material: Material | None = None
     payload: dict
+    material: Material | None = None
     sequencing: SequencingData | None = None
     wsi: WsiData | None = None
 

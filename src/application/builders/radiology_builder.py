@@ -21,7 +21,9 @@ class RadiologyBuilder:
         mg_payload = self._first_dict(payload.get("mg_series"))
         return ImagingStudy(
             accession_number=str(payload["accession_number"]),
-            source_id=str(payload.get("source_id", payload.get("id", payload["accession_number"]))),
+            source_id=str(
+                payload.get("source_id", payload.get("id", payload["accession_number"]))
+            ),
             imaging_study_identifier=payload.get("imaging_study_identifier"),
             belongs_to_person=payload.get("belongs_to_person"),
             imaging_modalities=payload.get("imaging_modalities"),
@@ -49,7 +51,9 @@ class RadiologyBuilder:
             body_region=payload.get("body_region"),
             laterality=payload.get("laterality"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             color_space=payload.get("color_space"),
             pixel_spacing=payload.get("pixel_spacing"),
@@ -86,7 +90,9 @@ class RadiologyBuilder:
             body_region=payload.get("body_region"),
             laterality=payload.get("laterality"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             color_space=payload.get("color_space"),
             pixel_spacing=payload.get("pixel_spacing"),
@@ -126,7 +132,9 @@ class RadiologyBuilder:
             body_region=payload.get("body_region"),
             laterality=payload.get("laterality"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             color_space=payload.get("color_space"),
             pixel_spacing=payload.get("pixel_spacing"),
@@ -156,7 +164,9 @@ class RadiologyBuilder:
             body_region=payload.get("body_region"),
             laterality=payload.get("laterality"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             color_space=payload.get("color_space"),
             pixel_spacing=payload.get("pixel_spacing"),
@@ -187,7 +197,9 @@ class RadiologyBuilder:
             body_region=payload.get("body_region"),
             laterality=payload.get("laterality"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             color_space=payload.get("color_space"),
             pixel_spacing=payload.get("pixel_spacing"),
@@ -207,4 +219,3 @@ class RadiologyBuilder:
             exposure_mas=payload.get("exposure_mas"),
             compression_force_n=payload.get("compression_force_n"),
         )
-

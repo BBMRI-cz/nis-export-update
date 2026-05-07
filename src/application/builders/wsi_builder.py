@@ -15,7 +15,9 @@ class WsiBuilder:
         fixed_block_payload = payload.get("fixed_block", payload)
         slide_container_payload = payload.get("slide_container", payload)
         assay_payload = payload.get("slide_preparation_assay", payload)
-        whole_slide_imaging_payload = payload.get("whole_slide_imaging", payload.get("wsi", payload))
+        whole_slide_imaging_payload = payload.get(
+            "whole_slide_imaging", payload.get("wsi", payload)
+        )
 
         return WsiData(
             bioptic_number=bioptic_number,
@@ -23,22 +25,32 @@ class WsiBuilder:
             fixed_block=self._build_fixed_block(fixed_block_payload),
             slide_container=self._build_slide_container(slide_container_payload),
             slide_preparation_assay=self._build_slide_preparation_assay(assay_payload),
-            whole_slide_imaging=self._build_whole_slide_imaging(whole_slide_imaging_payload),
+            whole_slide_imaging=self._build_whole_slide_imaging(
+                whole_slide_imaging_payload
+            ),
         )
 
     def _build_fixed_block(self, payload: object) -> FixedBlock | None:
         if not isinstance(payload, dict) or not payload:
             return None
         sample_preparation_payload = payload.get("sample_preparation")
-        if sample_preparation_payload is None and isinstance(payload.get("sample_preparations"), list):
-            candidates = [item for item in payload["sample_preparations"] if isinstance(item, dict)]
+        if sample_preparation_payload is None and isinstance(
+            payload.get("sample_preparations"), list
+        ):
+            candidates = [
+                item
+                for item in payload["sample_preparations"]
+                if isinstance(item, dict)
+            ]
             sample_preparation_payload = candidates[0] if candidates else None
         return FixedBlock(
             block_identifier=payload.get("block_identifier"),
             source_material=payload.get("source_material"),
             name_of_fixative=payload.get("name_of_fixative"),
             embedding_medium=payload.get("embedding_medium"),
-            sample_preparation=self._build_sample_preparation(sample_preparation_payload),
+            sample_preparation=self._build_sample_preparation(
+                sample_preparation_payload
+            ),
         )
 
     def _build_sample_preparation(self, payload: object) -> SamplePreparation | None:
@@ -71,7 +83,9 @@ class WsiBuilder:
             tissue_type=payload.get("tissue_type"),
         )
 
-    def _build_slide_preparation_assay(self, payload: object) -> SlidePreparationAssay | None:
+    def _build_slide_preparation_assay(
+        self, payload: object
+    ) -> SlidePreparationAssay | None:
         if not isinstance(payload, dict) or not payload:
             return None
         return SlidePreparationAssay(
@@ -91,7 +105,9 @@ class WsiBuilder:
             series_start_date=payload.get("series_start_date"),
             body_region=payload.get("body_region"),
             imaging_device=payload.get("imaging_device"),
-            manufacturer_of_imaging_device=payload.get("manufacturer_of_imaging_device"),
+            manufacturer_of_imaging_device=payload.get(
+                "manufacturer_of_imaging_device"
+            ),
             software_version=payload.get("software_version"),
             z_stacking=payload.get("z_stacking"),
             objective_lens_magnification=payload.get("objective_lens_magnification"),

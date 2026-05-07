@@ -17,7 +17,6 @@ from domain.models import (
     PatientAggregate,
     RadiologyData,
     Sample,
-    SequencingData,
     SyncState,
     SyncStatus,
     now_utc,

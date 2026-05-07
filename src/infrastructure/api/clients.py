@@ -109,7 +109,9 @@ class HttpCatalogueGateway:
                         "sequencing": build_sequencing_catalogue_dto(sample.sequencing)
                         if sample.sequencing
                         else None,
-                        "wsi": build_wsi_catalogue_dto(sample.wsi) if sample.wsi else None,
+                        "wsi": build_wsi_catalogue_dto(sample.wsi)
+                        if sample.wsi
+                        else None,
                     }
                     for sample in patient.samples
                 ],

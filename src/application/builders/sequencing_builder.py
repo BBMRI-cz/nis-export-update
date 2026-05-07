@@ -19,7 +19,9 @@ class SequencingBuilder:
             return value
         return [value]
 
-    def build_sequencing_data(self, predictive_number: str, payload: dict) -> SequencingData:
+    def build_sequencing_data(
+        self, predictive_number: str, payload: dict
+    ) -> SequencingData:
         entries_payload = self._as_list(payload.get("sequencing_entries"))
         if not entries_payload:
             entries_payload = [payload]
@@ -28,7 +30,9 @@ class SequencingBuilder:
             if not isinstance(entry_payload, dict):
                 continue
             source_id = str(
-                entry_payload.get("source_id", entry_payload.get("id", predictive_number))
+                entry_payload.get(
+                    "source_id", entry_payload.get("id", predictive_number)
+                )
             )
             entries.append(
                 SequencingEntry(
@@ -41,7 +45,9 @@ class SequencingBuilder:
                         entry_payload.get("sample_preparation", entry_payload)
                     ),
                     sequencing_run=self._build_sequencing_run(
-                        entry_payload.get("sequencing_run", entry_payload.get("sequencing"))
+                        entry_payload.get(
+                            "sequencing_run", entry_payload.get("sequencing")
+                        )
                     ),
                 )
             )
@@ -52,7 +58,9 @@ class SequencingBuilder:
             return None
         return payload.get("block_identifier")
 
-    def _build_sample_preparation(self, payload: dict | Any) -> SamplePreparation | None:
+    def _build_sample_preparation(
+        self, payload: dict | Any
+    ) -> SamplePreparation | None:
         if not isinstance(payload, dict) or not payload:
             return None
         sequencing_run = None

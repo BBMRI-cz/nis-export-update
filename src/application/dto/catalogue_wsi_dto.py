@@ -113,7 +113,9 @@ def _slide_container_to_dto(
         section_thickness=slide_container.section_thickness,
         cell_type=slide_container.cell_type,
         tissue_type=slide_container.tissue_type,
-        slide_preparation_assay=_slide_preparation_assay_to_dto(assay, whole_slide_imaging),
+        slide_preparation_assay=_slide_preparation_assay_to_dto(
+            assay, whole_slide_imaging
+        ),
     )
 
 
@@ -139,17 +141,14 @@ def _fixed_block_to_dto(
 
 
 def build_wsi_catalogue_dto(wsi: WsiData) -> dict[str, Any]:
+    fixed_block_dto = _fixed_block_to_dto(
+        fixed_block=wsi.fixed_block,
+        slide_container=wsi.slide_container,
+        assay=wsi.slide_preparation_assay,
+        whole_slide_imaging=wsi.whole_slide_imaging,
+    )
     return {
         "bioptic_number": wsi.bioptic_number,
         "source_id": wsi.source_id,
-        "fixed_block": asdict(
-            _fixed_block_to_dto(
-                fixed_block=wsi.fixed_block,
-                slide_container=wsi.slide_container,
-                assay=wsi.slide_preparation_assay,
-                whole_slide_imaging=wsi.whole_slide_imaging,
-            )
-        )
-        if wsi.fixed_block
-        else None,
+        "fixed_block": asdict(fixed_block_dto) if fixed_block_dto else None,
     }
